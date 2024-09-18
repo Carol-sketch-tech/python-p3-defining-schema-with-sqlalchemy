@@ -1,0 +1,108 @@
+Objectives
+    1. use external library to simplify tasks from earlier OM lessons.
+    2.linking the external library to our Python claasses with a databse table.
+
+
+SQLAlchemy ORM.
+sqlalchemy is a python library - meaning we can access to many clsse when we isntall it in our envirionment.
+there are two modes in which we can use SQLAchemy:
+    . SQLAchemy code
+    . SQ;Achemy ORM.-> This beter suits our needs hers, but you may encounter SQLAlchemy later.
+
+
+DEFINIG TABLES VIA SQLACHEMY ORM.
+creating tales with SQLAchemy requires a class with four traits
+
+    1. inheritance from a decalrative_base object.
+    2.A __tablename__ class atribute.
+    3. One or more Columns as class atrributes.
+    4. A columns specified to the tables primary key.
+
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Student(Base):
+    __tablename__ = 'students'
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String())
+
+Note that the declarative_base combines a container for 
+a table metadata as a group of methods that act as mappers between 
+python and our SQL database. inheritance from Base a declarative_base object allos us to avoind rewrting code.
+
+    Base = declarative_base() # note that inheritance of declarative_base from Base helps us avoid re-writing code.
+    # also note that Base is a parent object. 
+
+the __tablename__ attribute will eventually be used as the name of our SQLdatabase table.
+Tbal columns are identified usinG column objects as attributes- the optional primary_key tells SQLachemy that id will be the primary key for 
+the students table. the __tablename__ attribute is also dfined inside the class.and its value will be the name of ourdata base table.
+primary_key tell that the id will be primary key for the students table.
+
+this type of class is called the datamodel.
+
+PERSISTING THE SCHEMA.
+we have all the data we need to generate a databse table, but it wont happen as soon as we save our module.
+we need to execute a series of python statements to do perssits our schema.
+
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+
+
+Base = declarative_base() # note that inheritance of declarative_base from Base helps us avoid re-writing code.
+# also note that Base is a parent object. 
+class Student(Base):
+    __tablename__ = 'students'
+
+    id = Column(Integer(), primary_key= True)
+    name = Column(String())
+
+if __name__ == '__main__':
+    engine = create_engine('sqlite:///students.db')
+    Base.metadata.create_all(engine)# this line tell the engine that all models that inherit from Base should create a table.
+
+
+just as with using the sqlite3 pyton module on its own, we need to start by creating a connection to the database.
+the engine is 'home base' for the database everythin on the database side and the python side must pass through the engine for
+the process to count. Here were pointing to a local sqlite file where our tables will be created.
+
+create_all() command on the next line tells the engine that any models that were using Base as a parent should be used to create tables. 
+if you open students.db in VSCode, you should see that a table with two columns id and name.
+
+IMPROVING OUR SCRIPT.
+Inclusion of the shebang is enough to tell the interpreter that a module should be interpreted as a script, this 
+presents a conundrum for larger projects.for intance how does this affect import statments?
+
+As it turns out, the interprator gts a bit confused when an import statement encounters a cript, as written above,
+Base.metadata.create_all(engine) would run before the code of nay module that imported sqlalchemy_sandybox.py.
+
+however there is trick to avoid this:
+    if __name__ = '__main__':
+        engine = create_engine('sqlite3///:students.db')
+        Base.metadata.create_all(engine)
+the __name__ is an attribute possesed by modules that is assigned at runtime.
+it is assigned the value '__main__' if thw module is the main program,
+that is the one that you clled from the command line.
+
+Explanation 
+When you run a script direclty, the code at the top level of that script exectes immediately.
+however if the script is imported, this line will alsoe execute immediately which can lead to unintended consequences.
+
+    USING if__name__ = '__main__'
+    to avoid this problem, python developers use the if __name__ = '__main__' construct:
+
+        1. Understanding __name__:
+             the __name__ attribute in python is a special built in varibale that indicates the name of 
+             the current module.
+             if a module is run as the main program __Name__ is set to '__main__'.
+             if the module is imported, __Name__ is set to the modules name.
+        2.  Control Execution.
+            By placing the scripts executable conde inside an if __name__== '__main__':
+            block you ensure that it only runs when the module is exected direclty and not when its imported.
+        
+
+
+
